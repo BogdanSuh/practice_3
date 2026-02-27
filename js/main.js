@@ -1,6 +1,11 @@
 new Vue({
     el: '#app',
     data: {
-        message: 'Vue работает!'
+        columns: [
+            { title: 'Запланированные', cards: [] },
+            { title: 'В работе', cards: [] },
+            { title: 'Тестирование', cards: [] },
+            { title: 'Выполненные', cards: [] }
+        ]
     }
 });

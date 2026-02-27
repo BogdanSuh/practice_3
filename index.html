@@ -9,6 +9,12 @@
 <body>
 <div id="app">
     <h1>Kanban-доска</h1>
+    <div class="board">
+        <div class="column" v-for="(col, index) in columns" :key="index">
+            <h3>{{ col.title }}</h3>
+            <p>Задач: {{ col.cards.length }}</p>
+        </div>
+    </div>
 </div>
 <script src="js/vue.js"></script>
 <script src="js/main.js"></script>
