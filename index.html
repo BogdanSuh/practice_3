@@ -12,6 +12,12 @@
     <div class="board">
         <div class="column" v-for="(col, index) in columns" :key="index">
             <h3>{{ col.title }}</h3>
+
+            <button v-if="index === 0" @click="openModal()" class="add-btn">
+                + Добавить задачу
+            </button>
+
+            <p class="card-count">Задач: {{ col.cards.length }}</p>
             <task-card
                     v-for="card in col.cards"
                     :key="card.id"
@@ -20,22 +26,34 @@
                     @edit="openEditModal"
                     @delete="deleteCard"
                     @move="moveCard"
+                    @return="openReturnModal"
             />
-            <button v-if="index === 0" @click="openModal()" class="add-btn">
-                + Добавить задачу
-            </button>
-            <p>Задач: {{ col.cards.length }}</p>
         </div>
     </div>
 
     <div v-if="showModal" class="modal">
         <div class="modal-content">
-            <h2>Новая задача</h2>
-            <input v-model="newCard.title" placeholder="Заголовок">
-            <textarea v-model="newCard.description" placeholder="Описание"></textarea>
-            <input type="datetime-local" v-model="newCard.deadline">
-            <button @click="createCard" class="btn-primary">Создать</button>
-            <button @click="showModal = false" class="btn-danger">Отмена</button>
+            <h2>{{ isReturn ? 'Возврат задачи' : (isEdit ? 'Редактировать' : 'Новая задача') }}</h2>
+            <div class="form-group">
+                <label>Заголовок *</label>
+                <input v-model="newCard.title" placeholder="Заголовок">
+            </div>
+            <div class="form-group">
+                <label>Описание *</label>
+                <textarea v-model="newCard.description" placeholder="Описание"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Дедлайн *</label>
+                <input type="datetime-local" v-model="newCard.deadline">
+            </div>
+            <div v-if="isReturn" class="form-group">
+                <label>Причина возврата *</label>
+                <textarea v-model="newCard.returnReason" placeholder="Причина возврата"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button @click="createCard" class="btn-primary">Сохранить</button>
+                <button @click="showModal = false" class="btn-danger">Отмена</button>
+            </div>
         </div>
     </div>
 </div>

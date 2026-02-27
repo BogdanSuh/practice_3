@@ -1,18 +1,42 @@
 Vue.component('task-card', {
     template: `
-        <div class="card">
+        <div class="card" :class="cardClass">
             <h4>{{ card.title }}</h4>
             <p>{{ card.description }}</p>
-            <small> {{ formatDate(card.deadline) }}</small>
-            <small v-if="card.updatedAt">Обновить {{ formatDate(card.updatedAt) }}</small>
+            <div class="card-dates">
+                <small>Создано: {{ formatDate(card.createdAt) }}</small>
+                <small>Изменено: {{ formatDate(card.updatedAt) }}</small>
+                <small>Дедлайн: {{ formatDate(card.deadline) }}</small>
+            </div>
+            <div v-if="card.returnReason" class="return-reason">{{ card.returnReason }}</div>
+            <div v-if="isCompleted" class="status-badge" :class="statusClass">
+                {{ isOverdue ? 'Просрочено' : 'В срок' }}
+            </div>
             <div class="card-actions">
-                <button v-if="columnIndex === 0" @click="$emit('delete', card.id)" class="btn-delete">🗑️</button>
-                <button v-if="columnIndex < 3" @click="$emit('move', card.id, 1)" class="btn-move">→</button>
+                <button v-if="columnIndex === 0" @click="$emit('delete', card.id)" class="btn-delete">Удалить</button>
+                <button v-if="columnIndex < 3" @click="$emit('move', card.id, 1)" class="btn-move">Далее</button>
+                <button v-if="columnIndex === 2" @click="$emit('return', card)" class="btn-return">Вернуть</button>
                 <button @click="$emit('edit', card)" class="btn-edit">Изменить</button>
             </div>
         </div>
     `,
     props: ['card', 'columnIndex'],
+    computed: {
+        isCompleted() {
+            return this.columnIndex === 3;
+        },
+        isOverdue() {
+            if (!this.isCompleted || !this.card.deadline) return false;
+            return new Date() > new Date(this.card.deadline);
+        },
+        cardClass() {
+            if (!this.isCompleted) return '';
+            return this.isOverdue ? 'card-overdue' : 'card-ontime';
+        },
+        statusClass() {
+            return this.isOverdue ? 'status-overdue' : 'status-ontime';
+        }
+    },
     methods: {
         formatDate(date) {
             if (!date) return '';
@@ -25,20 +49,22 @@ new Vue({
     el: '#app',
     data: {
         columns: [
-            { title: ' Запланированные', cards: [] },
-            { title: ' В работе', cards: [] },
-            { title: ' Тестирование', cards: [] },
-            { title: ' Выполненные', cards: [] }
+            { title: 'Запланированные', cards: [] },
+            { title: 'В работе', cards: [] },
+            { title: 'Тестирование', cards: [] },
+            { title: 'Выполненные', cards: [] }
         ],
         showModal: false,
         isEdit: false,
+        isReturn: false,
         editingCard: null,
-        newCard: { title: '', description: '', deadline: '' }
+        newCard: { title: '', description: '', deadline: '', returnReason: '' }
     },
     methods: {
         openModal() {
-            this.newCard = { title: '', description: '', deadline: '' };
+            this.newCard = { title: '', description: '', deadline: '', returnReason: '' };
             this.isEdit = false;
+            this.isReturn = false;
             this.showModal = true;
         },
         openEditModal(card) {
@@ -46,20 +72,43 @@ new Vue({
             this.newCard = {
                 title: card.title,
                 description: card.description,
-                deadline: card.deadline
+                deadline: card.deadline,
+                returnReason: ''
             };
             this.isEdit = true;
+            this.isReturn = false;
+            this.showModal = true;
+        },
+        openReturnModal(card) {
+            this.editingCard = { ...card };
+            this.newCard = {
+                title: card.title,
+                description: card.description,
+                deadline: card.deadline,
+                returnReason: ''
+            };
+            this.isEdit = false;
+            this.isReturn = true;
             this.showModal = true;
         },
         createCard() {
             if (this.newCard.title && this.newCard.description && this.newCard.deadline) {
-                if (this.isEdit) {
+                if (this.isReturn) {
+                    const card = this.findCard(this.editingCard.id);
+                    if (card && this.newCard.returnReason) {
+                        card.returnReason = this.newCard.returnReason;
+                        card.updatedAt = new Date().toISOString();
+                        this.columns[2].cards = this.columns[2].cards.filter(c => c.id !== card.id);
+                        this.columns[1].cards.push(card);
+                    }
+                } else if (this.isEdit) {
                     const card = this.findCard(this.editingCard.id);
                     if (card) {
                         card.title = this.newCard.title;
                         card.description = this.newCard.description;
                         card.deadline = this.newCard.deadline;
                         card.updatedAt = new Date().toISOString();
+                        if (this.newCard.returnReason) card.returnReason = this.newCard.returnReason;
                     }
                 } else {
                     const card = {
