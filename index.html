@@ -18,6 +18,8 @@
                     :card="card"
                     :column-index="index"
                     @edit="openEditModal"
+                    @delete="deleteCard"
+                    @move="moveCard"
             />
             <button v-if="index === 0" @click="openModal()" class="add-btn">
                 + Добавить задачу
