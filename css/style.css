@@ -126,3 +126,16 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
 }
+
+.card-actions {
+    margin-top: 10px;
+}
+
+.btn-edit {
+    background: #4facfe;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
