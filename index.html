@@ -12,6 +12,7 @@
     <div class="board">
         <div class="column" v-for="(col, index) in columns" :key="index">
             <h3>{{ col.title }}</h3>
+            <task-card v-for="card in col.cards" :key="card.id" :card="card" />
             <p>Задач: {{ col.cards.length }}</p>
         </div>
     </div>
