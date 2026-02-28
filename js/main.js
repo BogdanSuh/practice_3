@@ -49,26 +49,26 @@ new Vue({
     el: '#app',
     data: {
         columns: [
-            { title: 'Запланированные', cards: [] },
-            { title: 'В работе', cards: [] },
-            { title: 'Тестирование', cards: [] },
-            { title: 'Выполненные', cards: [] }
+            {title: 'Запланированные', cards: []},
+            {title: 'В работе', cards: []},
+            {title: 'Тестирование', cards: []},
+            {title: 'Выполненные', cards: []}
         ],
         showModal: false,
         isEdit: false,
         isReturn: false,
         editingCard: null,
-        newCard: { title: '', description: '', deadline: '', returnReason: '' }
+        newCard: {title: '', description: '', deadline: '', returnReason: ''}
     },
     methods: {
         openModal() {
-            this.newCard = { title: '', description: '', deadline: '', returnReason: '' };
+            this.newCard = {title: '', description: '', deadline: '', returnReason: ''};
             this.isEdit = false;
             this.isReturn = false;
             this.showModal = true;
         },
         openEditModal(card) {
-            this.editingCard = { ...card };
+            this.editingCard = {...card};
             this.newCard = {
                 title: card.title,
                 description: card.description,
@@ -80,7 +80,7 @@ new Vue({
             this.showModal = true;
         },
         openReturnModal(card) {
-            this.editingCard = { ...card };
+            this.editingCard = {...card};
             this.newCard = {
                 title: card.title,
                 description: card.description,
